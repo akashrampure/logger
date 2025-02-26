@@ -223,7 +223,7 @@ logger.Log("1234567890123456", "abcdef1234567890abcdef1234567890abcdef1234567890
 ```
 */
 func (l *Logger) Log(deviceID, fileID, stage, status string, metadata interface{}) {
-	logMessage := fmt.Sprintf("[%s] Stage: %s, File: %s, Status: %s", deviceID, stage, fileID, status)
+	logMessage := fmt.Sprintf("[%s] DeviceId: %s, FileId: %s, Stage: %s", status, deviceID, fileID, stage)
 
 	l.logger.Println(logMessage)
 
