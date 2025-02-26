@@ -222,7 +222,7 @@ It then writes the log to both the file and the database.
 logger.Log("1234567890123456", "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890", "error", "Failed to process file", map[string]string{"key": "value"}, errors.New("file not found"))
 ```
 */
-func (l *Logger) Log(deviceID, fileID, status, stage string, summary interface{}) {
+func (l *Logger) Log(deviceID, fileID, stage, status string, summary interface{}) {
 	logMessage := fmt.Sprintf("[%s] Stage: %s, File: %s, Status: %s", deviceID, stage, fileID, status)
 
 	l.logger.Println(logMessage)
