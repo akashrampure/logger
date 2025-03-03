@@ -122,6 +122,7 @@ func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Log
 		processname TEXT NOT NULL,
 		deviceid TEXT NOT NULL,
 		fileid TEXT NOT NULL,
+		loglevel TEXT NOT NULL,
 		stage TEXT NOT NULL,
 		status TEXT NOT NULL,
 		metadata JSONB DEFAULT '{}',
@@ -159,7 +160,7 @@ func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Log
 /*
 LogToDB inserts a log entry into the database.
 */
-func (l *Logger) LogToDB(deviceID, fileID, stage, status string, metadata interface{}) {
+func (l *Logger) LogToDB(deviceID, fileID, stage, status, logLevel string, metadata interface{}) {
 	if l.db == nil {
 		l.logger.Println("DB logging skipped: No database connection")
 		return
@@ -168,6 +169,12 @@ func (l *Logger) LogToDB(deviceID, fileID, stage, status string, metadata interf
 	// Validate input parameters
 	if len(deviceID) != 16 || len(fileID) != 64 {
 		l.logger.Println("Invalid log: Device ID must be 16 digits, File ID must be 64 digits")
+		return
+	}
+
+	validLogLevels := map[string]bool{"info": true, "warn": true, "error": true, "debug": true}
+	if !validLogLevels[logLevel] {
+		l.logger.Println("Invalid log: Log level must be one of: info, warn, error, debug")
 		return
 	}
 
@@ -184,13 +191,13 @@ func (l *Logger) LogToDB(deviceID, fileID, stage, status string, metadata interf
 	}
 
 	query := fmt.Sprintf(`
-		INSERT INTO "%s".fotadevicelogs (processid, processname, deviceid, fileid, stage, status, createdby, metadata)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, l.schema)
+		INSERT INTO "%s".fotadevicelogs (processid, processname, deviceid, fileid, stage, status, loglevel, createdby, metadata)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, l.schema)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	_, dbErr := l.db.Exec(ctx, query, l.processID, l.processName, deviceID, fileID, stage, status, l.createdBy, compressedMetadata)
+	_, dbErr := l.db.Exec(ctx, query, l.processID, l.processName, deviceID, fileID, stage, status, logLevel, l.createdBy, compressedMetadata)
 	if dbErr != nil {
 		l.logger.Printf("Failed to insert log into DB: %v\n", dbErr)
 	}
@@ -222,12 +229,12 @@ It then writes the log to both the file and the database.
 logger.Log("1234567890123456", "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890", "error", "Failed to process file", map[string]string{"key": "value"}, errors.New("file not found"))
 ```
 */
-func (l *Logger) Log(deviceID, fileID, stage, status string, metadata interface{}) {
-	logMessage := fmt.Sprintf("[%s] DeviceId: %s, FileId: %s, Stage: %s", status, deviceID, fileID, stage)
+func (l *Logger) Log(deviceID, fileID, stage, status, logLevel string, metadata interface{}) {
+	logMessage := fmt.Sprintf("[%s] DeviceId: %s, FileId: %s, Stage: %s, Status: %s", logLevel, deviceID, fileID, stage, status)
 
 	l.logger.Println(logMessage)
 
-	l.LogToDB(deviceID, fileID, stage, status, metadata)
+	l.LogToDB(deviceID, fileID, stage, status, logLevel, metadata)
 }
 
 /*
