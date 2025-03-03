@@ -278,13 +278,13 @@ func logOnce(loggerI *Logger, deviceid string, fileId, stageName, status string,
 // for checking device stage
 var DeviceStageMap = make(map[string]string)
 
-func UpdateStageAndLog(loggerI *Logger, deviceid, newStage, fileId, status string, metadata interface{}) {
+func (l *Logger) UpdateStageAndLog(deviceid, newStage, fileId, status string, metadata interface{}) {
 	DeviceStageMap[deviceid] = newStage
-	logOnce(loggerI, deviceid, fileId, newStage, status, metadata)
+	logOnce(l, deviceid, fileId, newStage, status, metadata)
 }
 
 // for comparing the failure time and logging the stage
-func CreateMapToCheckFailure() (map[string]int64, map[string]int64) {
+func (l *Logger) CreateMapToCheckFailure() (map[string]int64, map[string]int64) {
 	deviceTimeMap := make(map[string]int64)
 	deviceTimeMap2 := make(map[string]int64)
 	return deviceTimeMap, deviceTimeMap2
