@@ -166,6 +166,8 @@ func (l *Logger) LogToDB(deviceID, fileID, stage, status, logLevel string, metad
 		return
 	}
 
+	logLevel = strings.ToUpper(logLevel)
+
 	// Validate input parameters
 	if len(deviceID) != 16 || len(fileID) != 64 {
 		l.logger.Println("Invalid log: Device ID must be 16 digits, File ID must be 64 digits")
