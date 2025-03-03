@@ -174,9 +174,9 @@ func (l *Logger) LogToDB(deviceID, fileID, stage, status, logLevel string, metad
 		return
 	}
 
-	validLogLevels := map[string]bool{"info": true, "warn": true, "error": true, "debug": true}
+	validLogLevels := map[string]bool{"INFO": true, "WARN": true, "ERROR": true, "DEBUG": true}
 	if !validLogLevels[logLevel] {
-		l.logger.Println("Invalid log: Log level must be one of: info, warn, error, debug")
+		l.logger.Println("Invalid log: Log level must be one of: INFO, WARN, ERROR, DEBUG")
 		return
 	}
 
