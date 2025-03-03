@@ -115,7 +115,7 @@ func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Log
 		return nil, fmt.Errorf("failed to create schema: %v", err)
 	}
 
-	// Create log table if it does not exist
+	//  Create log table if it does not exist
 	createTableQuery := fmt.Sprintf(`
 	CREATE TABLE IF NOT EXISTS "%s".fotadevicelogs (
 		processid TEXT NOT NULL,
