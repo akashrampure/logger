@@ -58,11 +58,11 @@ type Logger struct {
 	createdBy      string
 	schema         string
 	processName    string
-	deviceStageMap map[string]string
-	loggedStages   map[string]map[string]bool
-	deviceTimeMap  map[string]int64
-	deviceTimeMap2 map[string]int64
-	logLevelMap    map[string]string
+	DeviceStageMap map[string]string
+	LoggedStages   map[string]map[string]bool
+	DeviceTimeMap  map[string]int64
+	DeviceTimeMap2 map[string]int64
+	LogLevelMap    map[string]string
 }
 
 /*
@@ -159,11 +159,11 @@ func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Log
 		processName:    processName,
 		createdBy:      createdBy,
 		schema:         defaultSchema,
-		deviceStageMap: make(map[string]string),
-		loggedStages:   make(map[string]map[string]bool),
-		deviceTimeMap:  make(map[string]int64),
-		deviceTimeMap2: make(map[string]int64),
-		logLevelMap:    make(map[string]string),
+		DeviceStageMap: make(map[string]string),
+		LoggedStages:   make(map[string]map[string]bool),
+		DeviceTimeMap:  make(map[string]int64),
+		DeviceTimeMap2: make(map[string]int64),
+		LogLevelMap:    make(map[string]string),
 	}, nil
 }
 
@@ -262,28 +262,28 @@ func (l *Logger) Close() {
 // helper functions
 // get log level for the status
 func (l *Logger) getLogLevel(status string) string {
-	if logLevel, ok := l.logLevelMap[status]; ok {
+	if logLevel, ok := l.LogLevelMap[status]; ok {
 		return logLevel
 	}
 	return "INFO"
 }
 
 func (l *Logger) logOnce(deviceid string, fileId, stageName, status string, metadata interface{}) {
-	if _, exists := l.loggedStages[deviceid]; !exists {
-		l.loggedStages[deviceid] = make(map[string]bool)
+	if _, exists := l.LoggedStages[deviceid]; !exists {
+		l.LoggedStages[deviceid] = make(map[string]bool)
 	}
 	logKey := fmt.Sprintf("%s:%s", stageName, status)
 
 	logLevel := l.getLogLevel(status)
 
-	if !l.loggedStages[deviceid][logKey] {
+	if !l.LoggedStages[deviceid][logKey] {
 		l.Log(deviceid, fileId, stageName, status, logLevel, metadata)
-		l.loggedStages[deviceid][logKey] = true
+		l.LoggedStages[deviceid][logKey] = true
 	}
 }
 
 // func to update the stage and log the stage
 func (l *Logger) UpdateStageAndLog(deviceid, newStage, fileId, status string, metadata interface{}) {
-	l.deviceStageMap[deviceid] = newStage
+	l.DeviceStageMap[deviceid] = newStage
 	l.logOnce(deviceid, fileId, newStage, status, metadata)
 }
