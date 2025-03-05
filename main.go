@@ -62,7 +62,6 @@ type Logger struct {
 	LoggedStages   map[string]map[string]bool
 	DeviceTimeMap  map[string]int64
 	DeviceTimeMap2 map[string]int64
-	LogLevelMap    map[string]string
 }
 
 /*
@@ -79,7 +78,7 @@ Returns:
 - A pointer to a `Logger` instance.
 - An error if initialization fails.
 */
-func InitLogger(dbURL, processName, createdBy, logFilePath, schema string, logLevelMap map[string]string) (*Logger, error) {
+func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Logger, error) {
 	// Ensure the schema is valid, defaulting to "public"
 	var defaultSchema string
 	if len(schema) <= 3 {
@@ -163,7 +162,6 @@ func InitLogger(dbURL, processName, createdBy, logFilePath, schema string, logLe
 		LoggedStages:   make(map[string]map[string]bool),
 		DeviceTimeMap:  make(map[string]int64),
 		DeviceTimeMap2: make(map[string]int64),
-		LogLevelMap:    logLevelMap,
 	}, nil
 }
 
@@ -260,21 +258,11 @@ func (l *Logger) Close() {
 
 // v1.9.0
 // helper functions
-// get log level for the status
-func (l *Logger) getLogLevel(status string) string {
-	if logLevel, ok := l.LogLevelMap[status]; ok {
-		return logLevel
-	}
-	return "INFO"
-}
-
-func (l *Logger) logOnce(deviceid string, fileId, stageName, status string, metadata interface{}) {
+func (l *Logger) logOnce(deviceid string, fileId, stageName, status, logLevel string, metadata interface{}) {
 	if _, exists := l.LoggedStages[deviceid]; !exists {
 		l.LoggedStages[deviceid] = make(map[string]bool)
 	}
 	logKey := fmt.Sprintf("%s:%s", stageName, status)
-
-	logLevel := l.getLogLevel(status)
 
 	if !l.LoggedStages[deviceid][logKey] {
 		l.Log(deviceid, fileId, stageName, status, logLevel, metadata)
@@ -283,7 +271,7 @@ func (l *Logger) logOnce(deviceid string, fileId, stageName, status string, meta
 }
 
 // func to update the stage and log the stage
-func (l *Logger) UpdateStageAndLog(deviceid, newStage, fileId, status string, metadata interface{}) {
+func (l *Logger) UpdateStageAndLog(deviceid, newStage, fileId, status, logLevel string, metadata interface{}) {
 	l.DeviceStageMap[deviceid] = newStage
-	l.logOnce(deviceid, fileId, newStage, status, metadata)
+	l.logOnce(deviceid, fileId, newStage, status, logLevel, metadata)
 }
