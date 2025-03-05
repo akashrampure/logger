@@ -275,3 +275,7 @@ func (l *Logger) UpdateStageAndLog(deviceid, newStage, fileId, status, logLevel 
 	l.DeviceStageMap[deviceid] = newStage
 	l.logOnce(deviceid, fileId, newStage, status, logLevel, metadata)
 }
+
+func (l *Logger) DeleteLoggedStage(deviceid string) {
+	delete(l.LoggedStages, deviceid)
+}
