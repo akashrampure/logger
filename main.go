@@ -79,7 +79,7 @@ Returns:
 - A pointer to a `Logger` instance.
 - An error if initialization fails.
 */
-func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Logger, error) {
+func InitLogger(dbURL, processName, createdBy, logFilePath, schema string, logLevelMap map[string]string) (*Logger, error) {
 	// Ensure the schema is valid, defaulting to "public"
 	var defaultSchema string
 	if len(schema) <= 3 {
@@ -163,7 +163,7 @@ func InitLogger(dbURL, processName, createdBy, logFilePath, schema string) (*Log
 		LoggedStages:   make(map[string]map[string]bool),
 		DeviceTimeMap:  make(map[string]int64),
 		DeviceTimeMap2: make(map[string]int64),
-		LogLevelMap:    make(map[string]string),
+		LogLevelMap:    logLevelMap,
 	}, nil
 }
 
