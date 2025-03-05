@@ -276,6 +276,7 @@ func (l *Logger) UpdateStageAndLog(deviceid, newStage, fileId, status, logLevel 
 	l.logOnce(deviceid, fileId, newStage, status, logLevel, metadata)
 }
 
-func (l *Logger) DeleteLoggedStage(deviceid string) {
-	delete(l.LoggedStages, deviceid)
+// func to delete a logged entry
+func (l *Logger) DeleteLoggedEntry(deviceid, stage, status string) {
+	delete(l.LoggedStages[deviceid], fmt.Sprintf("%s:%s", stage, status))
 }
